@@ -1,45 +1,39 @@
-package com.movieflix.models;
+package com.movieflix.dto;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.Set;
 
-@Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Movie {
+public class MovieDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer movieId;
 
-    @Column(nullable = false, length = 200)
     @NotBlank(message = "Please provide movie's title!")
     private String title;
 
-    @Column(nullable = false)
     @NotBlank(message = "Please provide movie's director!")
     private String director;
 
-    @Column(nullable = false)
     @NotBlank(message = "Please provide movie's studio!")
     private String studio;
 
-    @ElementCollection
-    @CollectionTable(name = "movie_cast")
     private Set<String> movieCast;
 
-    @Column(nullable = false)
     private Integer releaseYear;
 
-    @Column(nullable = false)
     @NotBlank(message = "Please provide movie's poster!")
     private String poster;
+
+    @NotBlank(message = "Please provide poster's url!")
+    private String posterUrl;
+
 }
