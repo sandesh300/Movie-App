@@ -316,3 +316,190 @@
    ```bash
    mvn clean install
    ``
+
+## Movie Module Unit Tests
+
+This section documents the unit tests for the Movie Module, covering core functionalities such as adding a movie, updating a movie, get all movies, get movie by id, deleting a movie.
+
+### Prerequisites
+
+Ensure the following setup is complete before running the tests:
+
+- **JUnit 5**: Tests are written using JUnit 5.
+- **Mockito**: Used for mocking dependencies in services and repositories.
+- **Spring Boot Test**: Provides support for integration testing in Spring Boot applications.
+
+### Running Tests
+
+To run the tests, use:
+```bash
+mvn test
+```
+
+Or in IntelliJ, right-click on the test file and select **Run 'Tests'**.
+
+### Test Cases for Movie Module
+
+#### 1. **Test `addMovie` API**
+
+This test case verifies that the `addMovie` API correctly creates a new movie and returns the expected movie details.
+
+```java
+@Test
+public void shouldCreateMovieWhenValidRequest() throws IOException {
+    // Given: A MovieDto object with valid data and a MultipartFile
+    MovieDto movieDto = new MovieDto(null, "Inception", "Christopher Nolan", "Warner Bros.", Set.of("Leonardo DiCaprio", "Joseph Gordon-Levitt"), 2010, "inception-poster.jpg", null);
+    MultipartFile file = new MockMultipartFile("file", "inception-poster.jpg", "image/jpeg", "dummy content".getBytes());
+
+    // Mock: Simulate the file upload and movie creation process
+    String uploadedFileName = "inception-poster.jpg";
+    when(fileService.uploadFile(anyString(), any(MultipartFile.class))).thenReturn(uploadedFileName);
+    Movie savedMovie = new Movie(1, movieDto.getTitle(), movieDto.getDirector(), movieDto.getStudio(), movieDto.getMovieCast(), movieDto.getReleaseYear(), uploadedFileName);
+    when(movieService.addMovie(any(MovieDto.class), any(MultipartFile.class))).thenReturn(movieDto);
+
+    // When: The controller's addMovie method is called
+    ResponseEntity<MovieDto> response = movieController.addMovie(file, new ObjectMapper().writeValueAsString(movieDto));
+
+    // Then: Assert that the response is CREATED and the movie details match the expected data
+    assertEquals(HttpStatus.CREATED, response.getStatusCode());
+    assertEquals(movieDto.getTitle(), response.getBody().getTitle());
+    assertEquals(movieDto.getDirector(), response.getBody().getDirector());
+}
+```
+
+- **Explanation**:
+  - **Given**: Prepare a valid `MovieDto` and a mock file.
+  - **When**: Call the controller's method to add a movie.
+  - **Then**: Verify the response status and the content of the returned movie.
+
+#### 2. **Test `updateMovie` API**
+
+This test case checks that the `updateMovie` API updates an existing movie's details correctly.
+
+```java
+@Test
+public void shouldUpdateMovieWhenValidRequest() throws IOException {
+    // Given: An existing movie ID and an updated MovieDto object
+    Long movieId = 1L;
+    MovieDto updatedMovieDto = new MovieDto(movieId, "Inception", "Christopher Nolan", "Warner Bros.", Set.of("Leonardo DiCaprio", "Joseph Gordon-Levitt"), 2010, "inception-updated-poster.jpg", null);
+    MultipartFile file = new MockMultipartFile("file", "inception-updated-poster.jpg", "image/jpeg", "dummy content".getBytes());
+
+    // Mock: Simulate file upload and movie update process
+    String updatedFileName = "inception-updated-poster.jpg";
+    when(fileService.uploadFile(anyString(), any(MultipartFile.class))).thenReturn(updatedFileName);
+    Movie updatedMovie = new Movie(movieId, updatedMovieDto.getTitle(), updatedMovieDto.getDirector(), updatedMovieDto.getStudio(), updatedMovieDto.getMovieCast(), updatedMovieDto.getReleaseYear(), updatedFileName);
+    when(movieService.updateMovie(eq(movieId), any(MovieDto.class), any(MultipartFile.class))).thenReturn(updatedMovieDto);
+
+    // When: The controller's updateMovie method is called
+    ResponseEntity<MovieDto> response = movieController.updateMovie(movieId, file, new ObjectMapper().writeValueAsString(updatedMovieDto));
+
+    // Then: Assert that the response is OK and the movie details match the updated data
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(updatedMovieDto.getTitle(), response.getBody().getTitle());
+    assertEquals(updatedMovieDto.getPoster(), response.getBody().getPoster());
+}
+```
+
+- **Explanation**:
+  - **Given**: An existing movie ID and updated movie details.
+  - **When**: Call the controller's method to update the movie.
+  - **Then**: Verify that the response status is OK and the updated movie details are correct.
+
+#### 3. **Test `getAllMovies` API**
+
+This test case verifies that the `getAllMovies` API correctly retrieves a list of all movies.
+
+```java
+@Test
+public void shouldReturnAllMovies() {
+    // Given: A list of movies
+    List<MovieDto> movieDtos = Arrays.asList(
+        new MovieDto(1L, "Inception", "Christopher Nolan", "Warner Bros.", Set.of("Leonardo DiCaprio", "Joseph Gordon-Levitt"), 2010, "inception-poster.jpg", "http://localhost/file/inception-poster.jpg"),
+        new MovieDto(2L, "The Dark Knight", "Christopher Nolan", "Warner Bros.", Set.of("Christian Bale", "Heath Ledger"), 2008, "dark-knight-poster.jpg", "http://localhost/file/dark-knight-poster.jpg")
+    );
+    when(movieService.getAllMovies()).thenReturn(movieDtos);
+
+    // When: The controller's getAllMovies method is called
+    ResponseEntity<List<MovieDto>> response = movieController.getAllMoviesHandler();
+
+    // Then: Assert that the response is OK and contains the list of movies
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(movieDtos.size(), response.getBody().size());
+    assertEquals("Inception", response.getBody().get(0).getTitle());
+    assertEquals("The Dark Knight", response.getBody().get(1).getTitle());
+}
+```
+
+- **Explanation**:
+  - **Given**: A predefined list of movies.
+  - **When**: Call the controller's method to get all movies.
+  - **Then**: Verify the response status and ensure the list contains the expected movies.
+
+
+
+#### 4. **Test `getMovieById` API**
+
+This test case verifies that the `getMovieById` API works as expected and returns the correct movie details for a valid movie ID.
+
+```java
+@Test
+public void shouldReturnMovieWhenMovieIdExists() {
+    // Given: A valid movie ID
+    Long movieId = 1L;
+
+    // Mock: Simulating the expected Movie object that should be returned by the service
+    Movie mockMovie = new Movie(movieId, "Inception", "A mind-bending thriller", 2010);
+    when(movieService.getMovieById(movieId)).thenReturn(Optional.of(mockMovie));
+
+    // When: The controller's getMovieById method is called
+    ResponseEntity<Movie> response = movieController.getMovieById(movieId);
+
+    // Then: Assert that the response is OK and the movie returned matches the expected data
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(mockMovie.getTitle(), response.getBody().getTitle());
+    assertEquals(mockMovie.getYear(), response.getBody().getYear());
+}
+```
+
+- **Explanation**: 
+  - **Given**: We prepare a movie ID and mock the service to return the movie with that ID.
+  - **When**: The controller is invoked to fetch movie details.
+  - **Then**: We validate the response status and content.
+
+#### 5. **Test `deleteMovie` API**
+
+This test case verifies that the `deleteMovie` API correctly deletes a movie by its ID.
+
+```java
+@Test
+public void shouldDeleteMovieWhenMovieIdExists() {
+    // Given: A valid movie ID to be deleted
+    Long movieId = 1L;
+
+    // Mock: Simulating the behavior of the movieService to delete the movie
+    doNothing().when(movieService).deleteMovie(movieId);
+
+    // When: The controller's deleteMovie method is called
+    ResponseEntity<Void> response = movieController.deleteMovie(movieId);
+
+    // Then: Assert that the response status is NO_CONTENT (204) indicating successful deletion
+    assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+
+    // Verify that the movieService's deleteMovie method was called exactly once
+    verify(movieService, times(1)).deleteMovie(movieId);
+}
+```
+
+- **Explanation**: 
+  - **Given**: A movie ID is passed for deletion, and the service's delete behavior is mocked.
+  - **When**: The controller is called to delete the movie.
+  - **Then**: We ensure the correct status is returned and the service is called exactly once.
+
+
+
+### Additional Notes
+
+- **Mocking**: Use Mockito to mock services and file uploads to isolate the controller logic from actual service implementations.
+- **Edge Cases**: Consider writing tests for edge cases such as invalid inputs, missing data, or failure scenarios to ensure robustness.
+
+---
