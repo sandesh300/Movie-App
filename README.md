@@ -17,34 +17,6 @@ MovieAPI is a backend application developed using **Spring Boot**, **Java**, and
 - **JWT**: For securing APIs.
 - **Maven**: Dependency management.
 
-## Setup and Installation
-
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/yourusername/MovieAPI.git
-    ```
-
-2. Navigate to the project directory:
-    ```bash
-    cd MovieAPI
-    ```
-
-3. Configure MySQL:
-    - Create a database named `movies_db`.
-    - Update the `application.properties` with your MySQL configurations.
-
-4. Build the project:
-    ```bash
-    mvn clean install
-    ```
-
-5. Run the application:
-    ```bash
-    mvn spring-boot:run
-    ```
-
-6. The server will start at `http://localhost:8080`.
-
 ## API Documentation
 
 ### Authentication APIs
@@ -135,22 +107,32 @@ MovieAPI is a backend application developed using **Spring Boot**, **Java**, and
      - `movieDto`: JSON string containing the movie details:
      ```json
      {
-       "movieId": "2",
-       "title": "Animal",
-       "director": "Sandeep Vanga",
-       "studio": "Bollywood",
-       "movieCast": ["Ranbir Kapoor", "Rashmika Mandanna", "Tripti Dimri"],
-       "releaseYear": 2023,
-       "poster": "default.png",
-       "posterUrl": "url"
+      "movieId": 4,
+      "title": "jawan",
+      "director": "Rohit shetty",
+      "studio": "Bollywood",
+     "movieCast": ["Shahrukh khan", "Priyanka Chopra"],
+     "releaseYear": 2023,
+     "poster": "default.png",
+     "posterUrl": "url"
      }
      ```
     - **Response Body**:
 
      ```json
      {
-       
-     }
+    "movieId": 4,
+    "title": "jawan",
+    "director": "Rohit shetty",
+    "studio": "Bollywood",
+    "movieCast": [
+        "Shahrukh khan",
+        "Priyanka Chopra"
+    ],
+    "releaseYear": 2023,
+    "poster": "jawan.png",
+    "posterUrl": "http://localhost:8080/file/jawan.png"
+   }
      ```
   
 
@@ -184,7 +166,6 @@ MovieAPI is a backend application developed using **Spring Boot**, **Java**, and
    - **Description**: Retrieves a list of all movies.
    - **Response Body**:
    ```json
-   {
     [
     {
         "movieId": 2,
@@ -203,19 +184,31 @@ MovieAPI is a backend application developed using **Spring Boot**, **Java**, and
     {
         "movieId": 3,
         "title": "flash-2",
-        "director": "Luke patrick",
+        "director": "Sandeep Vanga",
         "studio": "Hollywood",
         "movieCast": [
-            "james bond",
-            "Ammi jackson",
-            "emma watson"
+            "Salaman Khan",
+            "Rashmika Mandanna",
+            "Tripti Dimri"
         ],
         "releaseYear": 2024,
         "poster": "flash.png",
         "posterUrl": "http://localhost:8080/file/flash.png"
+    },
+    {
+        "movieId": 4,
+        "title": "jawan",
+        "director": "Rohit shetty",
+        "studio": "Bollywood",
+        "movieCast": [
+            "Shahrukh khan",
+            "Priyanka Chopra"
+        ],
+        "releaseYear": 2023,
+        "poster": "jawan.png",
+        "posterUrl": "http://localhost:8080/file/jawan.png"
     }
-   ]
-   }    
+    ]
 
 5. **Update a Movie**
    - **Endpoint**: `http://localhost:8080/api/v1/movie/update/{id}`
@@ -226,7 +219,7 @@ MovieAPI is a backend application developed using **Spring Boot**, **Java**, and
      - `movieDtoObj`: JSON string with updated movie details:
      ```json
      {
-       "movieId": "2",
+       "movieId": 2,
        "title": "Animal",
        "director": "Sandeep Vanga, Rohit Shetty",
        "studio": "Bollywood",
@@ -239,12 +232,32 @@ MovieAPI is a backend application developed using **Spring Boot**, **Java**, and
 
    - **Description**: Updates the details of an existing movie.
      - **Response Body**:
+    ```json
+    {
+    "movieId": 2,
+    "title": "Animal",
+    "director": "Sandeep Vanga, Rohit shetty",
+    "studio": "Bollywood",
+    "movieCast": [
+        "Ranbir Kapoor",
+        "Rashmika Mandanna",
+        "Tripti Dimri",
+        "Bobby Deol"
+    ],
+    "releaseYear": 2023,
+    "poster": "animal.png",
+    "posterUrl": "http://localhost:8080/file/animal.png"
+   }
 
 6. **Delete a Movie**
    - **Endpoint**: `http://localhost:8080/api/v1/movie/delete/{id}`
    - **Method**: `DELETE`
    - **Description**: Deletes a movie by its ID.
    - **Response Body**:
+     ```json
+     {
+     Movie deleted with id = 3
+     }
 
 ### Password Management APIs
 
@@ -273,4 +286,32 @@ MovieAPI is a backend application developed using **Spring Boot**, **Java**, and
    - **Description**: Changes the user's password after OTP verification.
    - **Response Body**:
 
+
+## Setup and Installation
+
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/yourusername/MovieAPI.git
+    ```
+
+2. Navigate to the project directory:
+    ```bash
+    cd MovieAPI
+    ```
+
+3. Configure MySQL:
+    - Create a database named `movies_db`.
+    - Update the `application.properties` with your MySQL configurations.
+
+4. Build the project:
+    ```bash
+    mvn clean install
+    ```
+
+5. Run the application:
+    ```bash
+    mvn spring-boot:run
+    ```
+
+6. The server will start at `http://localhost:8080`.
 
