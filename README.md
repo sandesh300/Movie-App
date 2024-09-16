@@ -21,10 +21,13 @@
 - **JWT (JSON Web Tokens)**: Securing API endpoints.
 - **Maven**: Dependency management.
 
+## Index
+1. [API Documentation](#api-documentation)
+2. [Movie Module Unit Tests](#movie-module-unit-tests)
 ---
 #### API Documentation Website url -https://walnut-wrist-9da.notion.site/Movie-API-Documentation-8258fc33d572475384e9199e9deba52a
 
-## API Endpoints Documentations
+## API Documentation
 
 ### 1. **Authentication APIs**
 
@@ -348,11 +351,11 @@ This test case verifies that the `addMovie` API correctly creates a new movie an
 @Test
 public void shouldCreateMovieWhenValidRequest() throws IOException {
     // Given: A MovieDto object with valid data and a MultipartFile
-    MovieDto movieDto = new MovieDto(null, "Inception", "Christopher Nolan", "Warner Bros.", Set.of("Leonardo DiCaprio", "Joseph Gordon-Levitt"), 2010, "inception-poster.jpg", null);
-    MultipartFile file = new MockMultipartFile("file", "inception-poster.jpg", "image/jpeg", "dummy content".getBytes());
+    MovieDto movieDto = new MovieDto(null, "Inception", "Christopher Nolan", "Warner Bros.", Set.of("Leonardo DiCaprio", "Joseph Gordon-Levitt"), 2010, "inception-poster.png", null);
+    MultipartFile file = new MockMultipartFile("file", "inception-poster.png", "image/png", "dummy content".getBytes());
 
     // Mock: Simulate the file upload and movie creation process
-    String uploadedFileName = "inception-poster.jpg";
+    String uploadedFileName = "inception-poster.png";
     when(fileService.uploadFile(anyString(), any(MultipartFile.class))).thenReturn(uploadedFileName);
     Movie savedMovie = new Movie(1, movieDto.getTitle(), movieDto.getDirector(), movieDto.getStudio(), movieDto.getMovieCast(), movieDto.getReleaseYear(), uploadedFileName);
     when(movieService.addMovie(any(MovieDto.class), any(MultipartFile.class))).thenReturn(movieDto);
@@ -364,7 +367,9 @@ public void shouldCreateMovieWhenValidRequest() throws IOException {
     assertEquals(HttpStatus.CREATED, response.getStatusCode());
     assertEquals(movieDto.getTitle(), response.getBody().getTitle());
     assertEquals(movieDto.getDirector(), response.getBody().getDirector());
+    assertTrue(response.getBody().getPoster().endsWith(".png"));  // Ensure the poster filename ends with .png
 }
+
 ```
 
 - **Explanation**:
@@ -378,14 +383,14 @@ This test case checks that the `updateMovie` API updates an existing movie's det
 
 ```java
 @Test
-public void shouldUpdateMovieWhenValidRequest() throws IOException {
-    // Given: An existing movie ID and an updated MovieDto object
+public void shouldUpdateMovieWhenValidRequestWithPngFile() throws IOException {
+    // Given: An existing movie ID and an updated MovieDto object with a PNG file
     Long movieId = 1L;
-    MovieDto updatedMovieDto = new MovieDto(movieId, "Inception", "Christopher Nolan", "Warner Bros.", Set.of("Leonardo DiCaprio", "Joseph Gordon-Levitt"), 2010, "inception-updated-poster.jpg", null);
-    MultipartFile file = new MockMultipartFile("file", "inception-updated-poster.jpg", "image/jpeg", "dummy content".getBytes());
+    MovieDto updatedMovieDto = new MovieDto(movieId, "Inception", "Christopher Nolan", "Warner Bros.", Set.of("Leonardo DiCaprio", "Joseph Gordon-Levitt"), 2010, "inception-updated-poster.png", null);
+    MultipartFile file = new MockMultipartFile("file", "inception-updated-poster.png", "image/png", "dummy content".getBytes());
 
     // Mock: Simulate file upload and movie update process
-    String updatedFileName = "inception-updated-poster.jpg";
+    String updatedFileName = "inception-updated-poster.png";
     when(fileService.uploadFile(anyString(), any(MultipartFile.class))).thenReturn(updatedFileName);
     Movie updatedMovie = new Movie(movieId, updatedMovieDto.getTitle(), updatedMovieDto.getDirector(), updatedMovieDto.getStudio(), updatedMovieDto.getMovieCast(), updatedMovieDto.getReleaseYear(), updatedFileName);
     when(movieService.updateMovie(eq(movieId), any(MovieDto.class), any(MultipartFile.class))).thenReturn(updatedMovieDto);
@@ -414,8 +419,8 @@ This test case verifies that the `getAllMovies` API correctly retrieves a list o
 public void shouldReturnAllMovies() {
     // Given: A list of movies
     List<MovieDto> movieDtos = Arrays.asList(
-        new MovieDto(1L, "Inception", "Christopher Nolan", "Warner Bros.", Set.of("Leonardo DiCaprio", "Joseph Gordon-Levitt"), 2010, "inception-poster.jpg", "http://localhost/file/inception-poster.jpg"),
-        new MovieDto(2L, "The Dark Knight", "Christopher Nolan", "Warner Bros.", Set.of("Christian Bale", "Heath Ledger"), 2008, "dark-knight-poster.jpg", "http://localhost/file/dark-knight-poster.jpg")
+        new MovieDto(1L, "Inception", "Christopher Nolan", "Warner Bros.", Set.of("Leonardo DiCaprio", "Joseph Gordon-Levitt"), 2010, "inception-poster.png", "http://localhost/file/inception-poster.png"),
+        new MovieDto(2L, "The Dark Knight", "Christopher Nolan", "Warner Bros.", Set.of("Christian Bale", "Heath Ledger"), 2008, "dark-knight-poster.png", "http://localhost/file/dark-knight-poster.png")
     );
     when(movieService.getAllMovies()).thenReturn(movieDtos);
 
