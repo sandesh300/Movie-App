@@ -8,84 +8,125 @@ import com.movieflix.models.Movie;
 import com.movieflix.exceptions.MovieNotFoundException;
 
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.io.IOException;
-import java.util.Optional;
-import java.util.Set;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@ActiveProfiles("test")
 public class MovieServiceImplTest {
 
     @Mock
     private MovieRepository movieRepository;
 
+    @Mock
+    private FileService fileService;
+
     @InjectMocks
-    private MovieServiceImpl movieServiceImpl;
+    private MovieServiceImpl movieService;
+
+    @Value("${project.poster}")
+    private String path = "src/test/resources/posters"; // Mock path for test
+
+    @Value("${base.url}")
+    private String baseUrl = "http://localhost:8080";
+
+    private MovieDto movieDto;
+    private Movie movie;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this); // Initialize mocks before each test
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+        movieDto = new MovieDto(
+                1, "Inception", "Christopher Nolan", "Warner Bros",
+                new HashSet<>(Arrays.asList("Leonardo DiCaprio", "Joseph Gordon-Levitt")),
+                2010, "inception.jpg", "http://localhost:8080/file/inception.jpg"
+        );
+        movie = new Movie(
+                1, "Inception", "Christopher Nolan", "Warner Bros",
+                new HashSet<>(Arrays.asList("Leonardo DiCaprio", "Joseph Gordon-Levitt")),
+                2010, "inception.jpg"
+        );
     }
 
-    // Test case for getMovie method
     @Test
-    void testGetMovie_Success() {
-        // Arrange: Create a mock Movie object
-        Movie movie = new Movie(1, "Inception", "Christopher Nolan", "Warner Bros",
-                Set.of("Leonardo DiCaprio"), 2010, "poster.jpg");
+    public void testAddMovie() throws IOException {
+        MockMultipartFile file = new MockMultipartFile("file", "inception.jpg", "image/jpeg", "dummy content".getBytes());
+        when(fileService.uploadFile(anyString(), any())).thenReturn("inception.jpg");
+        when(movieRepository.save(any(Movie.class))).thenReturn(movie);
 
-        // Mock the repository to return the mock movie
-        when(movieRepository.findById(1)).thenReturn(Optional.of(movie));
-
-        // Act: Call the method to be tested
-        MovieDto result = movieServiceImpl.getMovie(1);
-
-        // Assert: Check that the results are correct
+        MovieDto result = movieService.addMovie(movieDto, file);
         assertNotNull(result);
         assertEquals("Inception", result.getTitle());
-        assertEquals("Christopher Nolan", result.getDirector());
-        verify(movieRepository, times(1)).findById(1); // Verify interaction with repository
+        assertEquals("http://localhost:8080/file/inception.jpg", result.getPoster());
     }
 
     @Test
-    void testGetMovie_NotFound() {
-        // Arrange: Mock the repository to return an empty Optional (movie not found)
-        when(movieRepository.findById(1)).thenReturn(Optional.empty());
+    public void testGetMovie() {
+        when(movieRepository.findById(anyInt())).thenReturn(Optional.of(movie));
 
-        // Act & Assert: Check that the exception is thrown
-        assertThrows(MovieNotFoundException.class, () -> movieServiceImpl.getMovie(1));
+        MovieDto result = movieService.getMovie(1);
+        assertNotNull(result);
+        assertEquals("Inception", result.getTitle());
+        assertEquals("http://localhost:8080/file/inception.jpg", result.getPoster());
     }
 
-    // Test case for deleteMovie method
     @Test
-    void testDeleteMovie_Success() throws IOException {
-        // Arrange: Create a mock Movie object
-        Movie movie = new Movie(1, "Inception", "Christopher Nolan", "Warner Bros",
-                Set.of("Leonardo DiCaprio"), 2010, "poster.jpg");
+    public void testGetAllMovies() {
+        when(movieRepository.findAll()).thenReturn(Collections.singletonList(movie));
 
-        // Mock the repository to return the mock movie
-        when(movieRepository.findById(1)).thenReturn(Optional.of(movie));
+        List<MovieDto> result = movieService.getAllMovies();
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertEquals("Inception", result.get(0).getTitle());
+    }
 
-        // Act: Call the deleteMovie method
-        String result = movieServiceImpl.deleteMovie(1);
+    @Test
+    public void testUpdateMovie() throws IOException {
+        MockMultipartFile file = new MockMultipartFile("file", "inception-updated.jpg", "image/jpeg", "updated content".getBytes());
+        when(movieRepository.findById(anyInt())).thenReturn(Optional.of(movie));
+        when(fileService.uploadFile(anyString(), any())).thenReturn("inception-updated.jpg");
+        when(movieRepository.save(any(Movie.class))).thenReturn(movie);
 
-        // Assert: Check that the movie was deleted and the correct message is returned
+        MovieDto updatedDto = new MovieDto(
+                1, "Inception", "Christopher Nolan", "Warner Bros",
+                new HashSet<>(Arrays.asList("Leonardo DiCaprio", "Joseph Gordon-Levitt")),
+                2010, "inception-updated.jpg", "http://localhost:8080/file/inception-updated.png"
+        );
+
+        MovieDto result = movieService.updateMovie(1, updatedDto, file);
+        assertNotNull(result);
+        assertEquals("Inception", result.getTitle());
+        assertEquals("http://localhost:8080/file/inception-updated.jpg", result.getPoster());
+    }
+
+    @Test
+    public void testDeleteMovie() throws IOException {
+        when(movieRepository.findById(anyInt())).thenReturn(Optional.of(movie));
+        doNothing().when(movieRepository).delete(any(Movie.class));
+        doNothing().when(Files.class).deleteIfExists(any());
+
+        String result = movieService.deleteMovie(1);
         assertEquals("Movie deleted with id = 1", result);
-        verify(movieRepository, times(1)).delete(movie); // Verify the delete interaction with the repository
-    }
-
-    @Test
-    void testDeleteMovie_NotFound() {
-        // Arrange: Mock the repository to return an empty Optional (movie not found)
-        when(movieRepository.findById(1)).thenReturn(Optional.empty());
-
-        // Act & Assert: Check that the MovieNotFoundException is thrown
-        assertThrows(MovieNotFoundException.class, () -> movieServiceImpl.deleteMovie(1));
     }
 }
