@@ -1,0 +1,26 @@
+<nav class="bg-blue-900 text-white p-2 flex justify-between items-center fixed top-0 left-0 w-full z-10">
+    <div class="text-2xl font-bold text-red-500 ml-5">
+      <a routerLink="/">MovieApp</a>
+    </div>
+    <div class="flex space-x-8">
+      <a routerLink="/" class="hover:text-yellow-500 text-xl">Home</a>
+      <div class="relative group">
+        <a class="hover:text-yellow-500 text-xl cursor-pointer">Movies</a>
+        <div class="absolute hidden group-hover:block bg-blue-800 rounded shadow-lg mt-1">
+          <a routerLink="/show-movies" class="block px-4 py-2 hover:bg-blue-700">Show Movies</a>
+          <a routerLink="/add-movie" class="block px-4 py-2 hover:bg-blue-700">Add Movie</a>
+        </div>
+      </div>
+    </div>
+    <div class="space-x-4 flex items-center">
+        <a *ngIf="!isLoggedIn()" routerLink="/login" class="bg-yellow-500 font-bold text-blue-900 px-3 py-2 rounded hover:bg-yellow-400">Login</a>
+        <a *ngIf="!isLoggedIn()" routerLink="/register" class="bg-yellow-500 font-bold text-blue-900 px-3 py-2 rounded hover:bg-yellow-400">Register</a>
+
+        <!-- For Logged in User -->
+        <div *ngIf="isLoggedIn()" class="flex items-center space-x-2">
+          <h2 class="font-bold text-yellow-300 px-3 py-2 rounded text-lg">{{name}}</h2>
+          <a (click)="logout()" class="text-white bg-red-500 hover:bg-red-700 px-4 py-2 rounded hover:cursor-pointer">Logout</a>
+        </div>
+    </div>
+</nav>
+  

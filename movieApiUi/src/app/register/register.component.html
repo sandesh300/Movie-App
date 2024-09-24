@@ -1,0 +1,45 @@
+<div class="min-h-screen flex items-center justify-center bg-slate-800">
+    <div class="bg-white p-8 rounded-2xl shadow-md w-full max-w-md mt-10">
+      <h2 class="text-2xl font-bold mb-8 text-blue-900 text-center">Register Here</h2>
+      <form [formGroup]="registerForm" (ngSubmit)="register()">
+          <div *ngIf="inlineNotification.show" class="text-red-600 mt-4 text-center">
+            {{ inlineNotification.text }}
+          </div>
+        <div class="mb-4">
+          <label for="name" class="block text-gray-700">Name</label>
+          <input type="text" id="name" formControlName="name" required class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300">
+          <div *ngIf="name.invalid && (name.dirty || name.touched)" class="text-red-600 mt-2">
+            <div *ngIf="name.errors?.['required']">Name is required.</div>
+          </div>
+        </div>
+        <div class="mb-4">
+          <label for="email" class="block text-gray-700">Email</label>
+          <input type="email" id="email" formControlName="email" required class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300">
+          <div *ngIf="email.invalid && (email.dirty || email.touched)" class="text-red-600 mt-2">
+            <div *ngIf="email.errors?.['required']">Email is required.</div>
+            <div *ngIf="email.errors?.['email']">Invalid email format.</div>
+          </div>
+        </div>
+        <div class="mb-4">
+          <label for="username" class="block text-gray-700">Username</label>
+          <input type="text" id="username" formControlName="username" required class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300">
+          <div *ngIf="username.invalid && (username.dirty || username.touched)" class="text-red-600 mt-2">
+            <div *ngIf="username.errors?.['required']">Username is required.</div>
+          </div>
+        </div>
+        <div class="mb-4">
+          <label for="password" class="block text-gray-700">Password</label>
+          <input type="password" id="password" formControlName="password" required class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300">
+          <div *ngIf="password.invalid && (password.dirty || password.touched)" class="text-red-600 mt-2">
+            <div *ngIf="password.errors?.['required']">Password is required.</div>
+            <div *ngIf="password.errors?.['minlength']">Password must be at least 5 characters long.</div>
+          </div>
+        </div>
+        <div class="flex justify-center">
+            <button type="submit" class="w-2/4 bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-700">Register</button>
+        </div>
+           
+    </form>
+    </div>
+</div>
+  
