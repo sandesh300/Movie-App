@@ -2,9 +2,9 @@
     <div class="bg-white p-8 rounded-2xl shadow-md w-full max-w-md mt-10">
       <h2 class="text-2xl font-bold mb-8 text-blue-900 text-center">Login Here</h2>
       <form [formGroup]="loginForm" (ngSubmit)="login()">
-        <div *ngIf="inlineNotification.show" class="text-red-600 mt-4 text-center">
-          {{ inlineNotification.text }}
-        </div>
+          <div *ngIf="inlineNotification.show" class="text-red-600 mt-4 text-center">
+            {{ inlineNotification.text }}
+          </div>
         <div class="mb-4">
           <label for="email" class="block text-gray-700">Email</label>
           <input type="email" id="email" formControlName="email" required class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300">
@@ -21,11 +21,11 @@
             <div *ngIf="password.errors?.['minlength']">Password must be at least 5 characters long.</div>
           </div>
         </div>
-        <div class="flex flex-col items-center">
-          <button type="submit" class="w-2/4 bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-700 mb-4">Login</button>
-          <a routerLink="/forgot-password" class="text-blue-500 hover:underline hover:cursor-pointer">Forgot Password?</a>
-       </div>   
-      </form>
+        <div class="flex justify-center">
+            <button type="submit" class="w-2/4 bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-700">Login</button>
+        </div>
+           
+    </form>
     </div>
 </div>
   
