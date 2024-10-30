@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, signal, WritableSignal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 
-
 @Injectable({
   providedIn: 'root'
 })
@@ -70,3 +69,5 @@ export type LoginRequest = {
   email: string,
   password: string,
 }
+
+
